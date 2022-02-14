@@ -135,8 +135,8 @@ void gridSubsamplingCentersV2(pcl::PointCloud<PointT>& point_cloud,
   // **********************
 
   // Initialize variables
-  std::unordered_map<size_t, VoxelCenter<PointT>> samples;
-  samples.reserve(point_cloud.size());
+  std::map<size_t, VoxelCenter<PointT>> samples;
+  // samples.reserve(point_cloud.size());
 
   size_t i = 0;
   for (const auto& p : point_cloud) {
@@ -164,8 +164,15 @@ void gridSubsamplingCentersV2(pcl::PointCloud<PointT>& point_cloud,
   // Convert hmap to index vector
   std::vector<int> indices;
   indices.reserve(samples.size());
-  for (const auto& v : samples) indices.push_back(v.second.idx);
+  for (const auto& v : samples) {
+    indices.push_back(v.second.idx);
 
+    // // move points at this localization to center
+    // auto& p = point_cloud.at(v.second.idx);
+    // p.x = v.second.center.x;
+    // p.y = v.second.center.y;
+    // p.z = v.second.center.z;
+  }
   // Modify the point_cloud
   point_cloud = pcl::PointCloud<PointT>(point_cloud, indices);
 }

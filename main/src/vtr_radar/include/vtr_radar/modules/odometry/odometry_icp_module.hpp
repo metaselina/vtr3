@@ -104,6 +104,9 @@ class OdometryICPModule : public tactic::BaseModule {
   rclcpp::Publisher<PointCloudMsg>::SharedPtr raw_pub_;
   rclcpp::Publisher<PointCloudMsg>::SharedPtr pub_;
 
+  rclcpp::Publisher<PointCloudMsg>::SharedPtr temp_map_pub_;
+  rclcpp::Publisher<PointCloudMsg>::SharedPtr temp_scan_pub_;
+
   VTR_REGISTER_MODULE_DEC_TYPE(OdometryICPModule);
 };
 

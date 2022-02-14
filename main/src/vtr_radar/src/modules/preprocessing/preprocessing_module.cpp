@@ -57,6 +57,8 @@ void PreprocessingModule::run_(QueryCache &qdata0, OutputCache &,
   if (config_->visualize && !publisher_initialized_) {
     // clang-format off
     filtered_pub_ = qdata.node->create_publisher<PointCloudMsg>("filtered_point_cloud", 5);
+    marker_pub_ = qdata.node->create_publisher<MarkerMsg>("marker_deleter", 5);
+    normal_pub_ = qdata.node->create_publisher<MarkerArrayMsg>("filtered_normal", 5);
     // clang-format on
     publisher_initialized_ = true;
   }
@@ -128,7 +130,39 @@ void PreprocessingModule::run_(QueryCache &qdata0, OutputCache &,
     pcl::toROSMsg(point_cloud_tmp, *pc2_msg);
     pc2_msg->header.frame_id = "radar";
     pc2_msg->header.stamp = rclcpp::Time(*qdata.stamp);
-    filtered_pub_->publish(*pc2_msg);    
+    filtered_pub_->publish(*pc2_msg);
+
+    MarkerArrayMsg ma_msg;
+    for (int id = 0; id < 1000; ++id) {
+      auto &m = ma_msg.markers.emplace_back();
+      m.header.frame_id = "radar";
+      m.header.stamp = rclcpp::Time(*qdata.stamp);
+      m.ns = "normal";
+      m.id = id;
+      m.type = MarkerMsg::ARROW;
+      if (filtered_point_cloud->size() > id) {
+        const auto &point = filtered_point_cloud->at(id);
+        m.action = MarkerMsg::ADD;
+        auto &sp = m.points.emplace_back();
+        sp.x = point.x;
+        sp.y = point.y;
+        sp.z = point.z;
+        auto &ep = m.points.emplace_back();
+        ep.x = point.x + point.normal_x * 5.0;
+        ep.y = point.y + point.normal_y * 5.0;
+        ep.z = point.z + point.normal_z * 5.0;
+        m.scale.x = 0.5;
+        m.scale.y = 1.5;
+        m.scale.z = 1.0;
+        m.color.r = 1.0f;
+        m.color.g = 0.0f;
+        m.color.b = 0.0f;
+        m.color.a = 1.0;
+      } else {
+        m.action = MarkerMsg::DELETE;
+      }
+    }
+    normal_pub_->publish(ma_msg);
   }
 
   /// Output

@@ -19,6 +19,7 @@
 #pragma once
 
 #include "sensor_msgs/msg/point_cloud2.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
 
 #include "vtr_radar/cache.hpp"
 #include "vtr_tactic/modules/base_module.hpp"
@@ -31,6 +32,8 @@ namespace radar {
 class PreprocessingModule : public tactic::BaseModule {
  public:
   using PointCloudMsg = sensor_msgs::msg::PointCloud2;
+  using MarkerMsg = visualization_msgs::msg::Marker;
+  using MarkerArrayMsg = visualization_msgs::msg::MarkerArray;
 
   /** \brief Static module identifier. */
   static constexpr auto static_name = "radar.preprocessing";
@@ -71,6 +74,8 @@ class PreprocessingModule : public tactic::BaseModule {
   /** \brief for visualization only */
   bool publisher_initialized_ = false;
   rclcpp::Publisher<PointCloudMsg>::SharedPtr filtered_pub_;
+  rclcpp::Publisher<MarkerMsg>::SharedPtr marker_pub_;
+  rclcpp::Publisher<MarkerArrayMsg>::SharedPtr normal_pub_;
 
   VTR_REGISTER_MODULE_DEC_TYPE(PreprocessingModule);
 };

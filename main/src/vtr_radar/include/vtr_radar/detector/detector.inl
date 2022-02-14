@@ -220,21 +220,17 @@ void CACFAR<PointT>::run(const cv::Mat &raw_scan, const float &res,
     mean /= N;
 
     for (int j = mincol; j < maxcol; ++j) {
-      double stat = 0;  // (statistic) estimate of clutter power
+      // double stat = 0;  // (statistic) estimate of clutter power
       double left = 0;
       double right = 0;
-      // for (int k = -w2 - guard_; k <= w2 + guard_; ++k) {
-      //   if (k < -guard_ || k > guard_)
-      //     stat += raw_scan.at<float>(i, j + k);
-      // }
-      for (int k = -w2 - guard_; k < -guard_; ++k) {
+      for (int k = -w2 - guard_; k < -guard_; ++k)
         left += raw_scan.at<float>(i, j + k);
-      }
-      for (int k = guard_ + 1; k <= w2 + guard_; ++k) {
+      for (int k = guard_ + 1; k <= w2 + guard_; ++k)
         right += raw_scan.at<float>(i, j + k);
-      }
-      stat = std::max(left, right);
-      const float thres = threshold_ * stat / (window / 2) + threshold2_ * mean;
+      // stat = std::max(left, right);
+      // const float thres = threshold_ * stat / (window / 2) + threshold2_ * mean;
+      const double stat = (left + right) / (2 * w2);
+      const float thres = threshold_ * stat + threshold2_ * mean;
       if (raw_scan.at<float>(i, j) > thres) {
         PointT p;
         p.rho = j * res;

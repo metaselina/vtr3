@@ -104,6 +104,9 @@ void OdometryICPModule::run_(QueryCache &qdata0, OutputCache &,
     // clang-format off
     pub_ = qdata.node->create_publisher<PointCloudMsg>("udist_point_cloud", 5);
     raw_pub_ = qdata.node->create_publisher<PointCloudMsg>("udist_raw_point_cloud", 5);
+
+    temp_map_pub_ = qdata.node->create_publisher<PointCloudMsg>("temp_icp_map", 5);
+    temp_scan_pub_ = qdata.node->create_publisher<PointCloudMsg>("temp_icp_scan", 5);
     // clang-format on
     publisher_initialized_ = true;
   }
@@ -228,6 +231,24 @@ void OdometryICPModule::run_(QueryCache &qdata0, OutputCache &,
     aligned_mat = (C_pm_s * query_mat).colwise() + r_s_pm_in_pm;
     aligned_norms_mat = C_pm_s * query_norms_mat;
   }
+
+  // if (config_->visualize) {
+  //   PointCloudMsg pc2_msg;
+  //   pcl::toROSMsg(point_map, pc2_msg);
+  //   pc2_msg.header.frame_id = "point_map";
+  //   // pc2_msg.header.stamp = rclcpp::Time(*qdata.stamp);
+  //   temp_map_pub_->publish(pc2_msg);
+  // }
+
+  // if (config_->visualize) {
+  //   auto temp_aligned_points = aligned_points;
+  //   PointCloudMsg pc2_msg;
+  //   pcl::toROSMsg(temp_aligned_points, pc2_msg);
+  //   pc2_msg.header.frame_id = "point_map";
+  //   // pc2_msg.header.stamp = rclcpp::Time(*qdata.stamp);
+  //   temp_scan_pub_->publish(pc2_msg);
+  //   std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  // }
 
   // ICP results
   EdgeTransform T_r_pm_icp;
@@ -402,6 +423,16 @@ void OdometryICPModule::run_(QueryCache &qdata0, OutputCache &,
       aligned_mat = (C_pm_s * query_mat).colwise() + r_s_pm_in_pm;
       aligned_norms_mat = C_pm_s * query_norms_mat;
     }
+
+    // if (config_->visualize) {
+    //   auto temp_aligned_points = aligned_points;
+    //   PointCloudMsg pc2_msg;
+    //   pcl::toROSMsg(temp_aligned_points, pc2_msg);
+    //   pc2_msg.header.frame_id = "point_map";
+    //   // pc2_msg.header.stamp = rclcpp::Time(*qdata.stamp);
+    //   temp_scan_pub_->publish(pc2_msg);
+    //   std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    // }
 
     // Update all result matrices
     const auto T_pm_s = T_pm_s_eval->evaluate().matrix();
